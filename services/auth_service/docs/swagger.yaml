@@ -1,0 +1,22 @@
+basePath: /
+host: localhost:8081
+info:
+  contact: {}
+  description: Сервис авторизации
+  title: Auth Service API
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: Простой endpoint для проверки, что сервис работает
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Hello worlds from go
+          schema:
+            type: string
+      summary: Проверка сервера
+      tags:
+      - system
+swagger: "2.0"

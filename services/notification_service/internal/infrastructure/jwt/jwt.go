@@ -1,40 +1,14 @@
 package jwt
 
-import (
-	"time"
+import "github.com/golang-jwt/jwt/v5"
 
-	"github.com/golang-jwt/jwt/v5"
-)
-
-type Jwt struct {
-	secret []byte
-}
-
-func NewJwt(secret string) *Jwt {
-	return &Jwt{
-		secret: []byte(secret),
-	}
-}
-
-func (j *Jwt) GenerateToken(userId uint) (string, error) {
-	claims := jwt.MapClaims{
-		"user_id": userId,
-		"exp":     time.Now().Add(24 * time.Hour).Unix(), // срок жизни
-		"iat":     time.Now().Unix(),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return token.SignedString(j.secret)
-}
-
-func (j *Jwt) DecodeToken(tokenString string) (uint, error) {
+func DecodeToken(tokenString string) (uint, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// проверяем метод подписи
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
-		return j.secret, nil
+		return "", nil
 	})
 
 	if err != nil {

@@ -3,8 +3,9 @@ package rest_api
 import (
 	"auth-service/internal/controller/rest_api/authHandler"
 	"auth-service/internal/entity"
-	"github.com/go-chi/chi/v5"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type (

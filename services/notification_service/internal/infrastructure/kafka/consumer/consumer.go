@@ -3,7 +3,7 @@ package consumer
 import (
 	"encoding/json"
 	"fmt"
-	"notification-service/internal/infrastructure/kafka/consumer/events"
+	"notification-service/internal/events"
 	"notification-service/internal/infrastructure/kafka/consumer/handlers"
 	"os"
 

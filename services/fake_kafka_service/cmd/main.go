@@ -1,6 +1,12 @@
 package main
 
+import "fake/internal/producer"
+
 func main() {
-	//producer.NewsProducer()
-	//consumer.NewsConsumer()
+	p := producer.NewProducer()
+	topics := []string{"async-topic"}
+
+	produce := p.Init()
+	p.Send(topics[0], produce)
+
 }

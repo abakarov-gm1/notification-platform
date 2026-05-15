@@ -2,19 +2,26 @@ package handlers
 
 import (
 	"notification-service/internal/entity"
-	"notification-service/internal/infrastructure/kafka/consumer/events"
+	"notification-service/internal/events"
 )
 
-type NotificationUseCase interface {
-	NotifCreate(newNotif *entity.NotificationEntity) error
-}
+type (
+	NotificationUseCase interface {
+		NotifCreate(newNotif *entity.NotificationEntity) error
+	}
+
+	CreateWorkersUseCase interface {
+		Send(*events.NotificationEvent) error
+	}
+)
 
 type NotificationHandler struct {
-	notifUseCase NotificationUseCase
+	NotifUseCase         NotificationUseCase
+	CreateWorkersUseCase CreateWorkersUseCase
 }
 
-func NewNotificationHandler(notifUseCase NotificationUseCase) *NotificationHandler {
-	return &NotificationHandler{notifUseCase: notifUseCase}
+func NewNotificationHandler(notifUseCase NotificationUseCase, createWorkersUseCase CreateWorkersUseCase) *NotificationHandler {
+	return &NotificationHandler{NotifUseCase: notifUseCase, CreateWorkersUseCase: createWorkersUseCase}
 }
 
 func (n *NotificationHandler) CreateHandler(data *events.NotificationEvent) error {
@@ -27,7 +34,7 @@ func (n *NotificationHandler) CreateHandler(data *events.NotificationEvent) erro
 		UpdatedAt: data.UpdatedAt,
 	}
 
-	err := n.notifUseCase.NotifCreate(&newNotif)
+	err := n.NotifUseCase.NotifCreate(&newNotif)
 	if err != nil {
 		return err
 	}
@@ -35,6 +42,9 @@ func (n *NotificationHandler) CreateHandler(data *events.NotificationEvent) erro
 }
 
 func (n *NotificationHandler) CreateWorkersHandler(data *events.NotificationEvent) error {
+	err := n.CreateWorkersUseCase.Send(data)
+	if err != nil {
+		return err
+	}
 	return nil
-	// тут создаю нужные разделения и отправляю в консюмер
 }

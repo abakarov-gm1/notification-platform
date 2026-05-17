@@ -7,25 +7,20 @@ import (
 
 type (
 	NotificationUseCase interface {
-		NotifCreate(newNotif *entity.NotificationEntity) error
-	}
-
-	CreateWorkersUseCase interface {
-		Send(*events.NotificationEvent) error
+		NotifyCreate(newNotify *entity.NotificationEntity) error
 	}
 )
 
 type NotificationHandler struct {
-	NotifUseCase         NotificationUseCase
-	CreateWorkersUseCase CreateWorkersUseCase
+	NotifyUseCase NotificationUseCase
 }
 
-func NewNotificationHandler(notifUseCase NotificationUseCase, createWorkersUseCase CreateWorkersUseCase) *NotificationHandler {
-	return &NotificationHandler{NotifUseCase: notifUseCase, CreateWorkersUseCase: createWorkersUseCase}
+func NewNotificationHandler(notifyUseCase NotificationUseCase) *NotificationHandler {
+	return &NotificationHandler{NotifyUseCase: notifyUseCase}
 }
 
 func (n *NotificationHandler) CreateHandler(data *events.NotificationEvent) error {
-	newNotif := entity.NotificationEntity{
+	newNotify := entity.NotificationEntity{
 		UserID:    data.User.Id,
 		Channel:   data.Channel,
 		Message:   data.Message,
@@ -34,15 +29,7 @@ func (n *NotificationHandler) CreateHandler(data *events.NotificationEvent) erro
 		UpdatedAt: data.UpdatedAt,
 	}
 
-	err := n.NotifUseCase.NotifCreate(&newNotif)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (n *NotificationHandler) CreateWorkersHandler(data *events.NotificationEvent) error {
-	err := n.CreateWorkersUseCase.Send(data)
+	err := n.NotifyUseCase.NotifyCreate(&newNotify)
 	if err != nil {
 		return err
 	}

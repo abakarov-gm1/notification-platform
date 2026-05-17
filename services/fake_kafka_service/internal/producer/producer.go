@@ -7,58 +7,61 @@ import (
 )
 
 type Producer struct {
+	producer *kafka.Producer
 }
 
 func NewProducer() *Producer {
-	return &Producer{}
-}
-
-func (p *Producer) Init() *kafka.Producer {
 	configs := &kafka.ConfigMap{
 		"bootstrap.servers": "kafka:29092",
 	}
-
-	producer, err := kafka.NewProducer(configs)
+	p, err := kafka.NewProducer(configs)
 	if err != nil {
 		_ = fmt.Errorf("ошибкка с консюмером  %e", err)
 	}
-	defer producer.Close()
-
-	fmt.Println("Init producer...")
-
-	return producer
-
-}
-
-func (p *Producer) Send(topic string, producer *kafka.Producer) {
-
-	for _, word := range []string{"hello", "from", "test", "connect Kafka"} {
-
-		message := &kafka.Message{
-			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-			Value:          []byte(word),
-		}
-
-		err := producer.Produce(message, nil)
-
-		if err != nil {
-			fmt.Println("produce error:", err)
-			continue
-		}
-
+	producer := &Producer{
+		producer: p,
 	}
 
-	go func() {
-		for e := range producer.Events() {
-			switch ev := e.(type) {
-			case *kafka.Message:
-				if ev.TopicPartition.Error != nil {
-					fmt.Printf("Failed to deliver message: %v\n", ev.TopicPartition.Error)
-				} else {
-					fmt.Printf("Successfully produced record to topic %s partition [%d] @ offset %v\n",
-						*ev.TopicPartition.Topic, ev.TopicPartition.Partition, ev.TopicPartition.Offset)
-				}
+	go producer.handleEvents()
+
+	return producer
+}
+
+func (p *Producer) handleEvents() {
+	for e := range p.producer.Events() {
+		switch ev := e.(type) {
+
+		case *kafka.Message:
+			if ev.TopicPartition.Error != nil {
+				fmt.Printf(
+					"Failed to deliver message: %v\n",
+					ev.TopicPartition.Error,
+				)
+			} else {
+				fmt.Printf(
+					"Delivered to topic %s [%d] offset %v\n",
+					*ev.TopicPartition.Topic,
+					ev.TopicPartition.Partition,
+					ev.TopicPartition.Offset,
+				)
 			}
 		}
-	}()
+	}
+}
+
+func (p *Producer) Send(topic string, value []byte) error {
+	message := &kafka.Message{
+		TopicPartition: kafka.TopicPartition{
+			Topic:     &topic,
+			Partition: kafka.PartitionAny,
+		},
+		Value: value,
+	}
+
+	return p.producer.Produce(message, nil)
+}
+
+func (p *Producer) Close() {
+	p.producer.Flush(5000)
+	p.producer.Close()
 }

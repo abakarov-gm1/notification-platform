@@ -7,35 +7,35 @@ import (
 	"notification-service/internal/infrastructure/jwt"
 )
 
-type NotifUseCase interface {
-	NotifCreate(newNotif *entity.NotificationEntity) error
-	NotifDelete(notif *entity.NotificationEntity) error
+type NotifyUseCase interface {
+	NotifyCreate(newNotify *entity.NotificationEntity) error
+	NotifyDelete(notify *entity.NotificationEntity) error
 }
 
 type NotificationHandler struct {
-	NotifUseCase NotifUseCase
+	NotifyUseCase NotifyUseCase
 }
 
-func NewNotificationHandler(notifUseCase NotifUseCase) *NotificationHandler {
-	return &NotificationHandler{NotifUseCase: notifUseCase}
+func NewNotificationHandler(notifyUseCase NotifyUseCase) *NotificationHandler {
+	return &NotificationHandler{NotifyUseCase: notifyUseCase}
 }
 
-func (r *NotificationHandler) NotifCreateHandler(w http.ResponseWriter, req *http.Request) {
+func (r *NotificationHandler) NotifyCreateHandler(w http.ResponseWriter, req *http.Request) {
 	userId, er := jwt.DecodeToken(req.Header.Get("Authorization"))
 	if er != nil {
 		_, _ = w.Write([]byte(er.Error()))
 	}
 
-	var notif entity.NotificationEntity
-	err := json.NewDecoder(req.Body).Decode(&notif)
+	var notify entity.NotificationEntity
+	err := json.NewDecoder(req.Body).Decode(&notify)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	notif.UserID = userId
+	notify.UserID = userId
 
-	if err := r.NotifUseCase.NotifCreate(&notif); err != nil {
+	if err := r.NotifyUseCase.NotifyCreate(&notify); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -43,15 +43,15 @@ func (r *NotificationHandler) NotifCreateHandler(w http.ResponseWriter, req *htt
 
 }
 
-func (r *NotificationHandler) NotifDeleteHandler(w http.ResponseWriter, req *http.Request) {
-	var notif entity.NotificationEntity
-	err := json.NewDecoder(req.Body).Decode(&notif)
+func (r *NotificationHandler) NotifyDeleteHandler(w http.ResponseWriter, req *http.Request) {
+	var notify entity.NotificationEntity
+	err := json.NewDecoder(req.Body).Decode(&notify)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = r.NotifUseCase.NotifDelete(&notif)
+	err = r.NotifyUseCase.NotifyDelete(&notify)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

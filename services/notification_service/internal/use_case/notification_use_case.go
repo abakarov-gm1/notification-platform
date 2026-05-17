@@ -4,34 +4,34 @@ import (
 	"notification-service/internal/entity"
 )
 
-type NotifRepository interface {
+type NotifyRepository interface {
 	NotificationCreate(data *entity.NotificationEntity) error
 	NotificationDelete(data *entity.NotificationEntity) error
 }
 
 type NotificationUseCase struct {
-	repo NotifRepository
+	repo NotifyRepository
 }
 
-func NewNotificationUseCase(r NotifRepository) *NotificationUseCase {
+func NewNotificationUseCase(r NotifyRepository) *NotificationUseCase {
 	return &NotificationUseCase{repo: r}
 }
 
-func (n *NotificationUseCase) NotifSend() {
+func (n *NotificationUseCase) NotifySend() {
 
 }
 
-func (n *NotificationUseCase) NotifCreate(newNotif *entity.NotificationEntity) error {
-	if err := n.repo.NotificationCreate(newNotif); err != nil {
+func (n *NotificationUseCase) NotifyCreate(newNotify *entity.NotificationEntity) error {
+	if err := n.repo.NotificationCreate(newNotify); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (n *NotificationUseCase) NotifDelete(notif *entity.NotificationEntity) error {
-	return n.repo.NotificationDelete(notif)
+func (n *NotificationUseCase) NotifyDelete(notify *entity.NotificationEntity) error {
+	return n.repo.NotificationDelete(notify)
 }
 
-func (n *NotificationUseCase) NotifCreateWorkers() {
+func (n *NotificationUseCase) NotifyCreateWorkers() {
 
 }
